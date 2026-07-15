@@ -30,6 +30,9 @@
               }
             ],
             "styles": [
+              "@fontsource-variable/fraunces/index.css",
+              "@fontsource/ibm-plex-mono/400.css",
+              "@fontsource/ibm-plex-mono/500.css",
               "src/styles.scss"
             ]
           },

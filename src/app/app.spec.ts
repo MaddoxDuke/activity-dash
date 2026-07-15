@@ -8,16 +8,11 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
+  it('shows the gate while no key is stored', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, activity-dash');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.gate')).toBeTruthy();
+    expect(el.textContent).toContain('This almanac is private');
   });
 });
