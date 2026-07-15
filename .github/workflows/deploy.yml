@@ -1,0 +1,48 @@
+name: test-and-deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-activity-dash
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx ng test --watch=false
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx ng build
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # VPS host key is pinned; a mismatch aborts the deploy
+          echo '198.23.235.130 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKg1LAWmZqZefOvu8L4xyplnOVseqKr5z+9m4JVdDdqt' >> ~/.ssh/known_hosts
+
+      - name: Rsync to the VPS
+        run: rsync -av --delete dist/activity-dash/browser/ maddox@198.23.235.130:/var/www/dash/
+
+      - name: Verify live
+        run: curl -fsS https://dash.maddox-duke.com/ | grep -qi whereabouts
