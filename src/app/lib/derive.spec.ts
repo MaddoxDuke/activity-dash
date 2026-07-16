@@ -154,6 +154,86 @@ describe('placeStreak', () => {
   });
 });
 
+describe('deriveActivitySessions (via deriveSessions)', () => {
+  const now = T0 + 30 * 3600_000;
+
+  it('pairs start/stop into an activity session, independent of place stays', () => {
+    const { sessions, activities } = deriveSessions(
+      parseEvents([
+        ev(18, 'arrived_home'),
+        ev(20, 'editing_start'),
+        ev(23, 'editing_stop'),
+      ]),
+      now,
+    );
+    // The home stay is untouched by the editing pair — they overlap.
+    expect(sessions.map((s) => s.place)).toEqual(['home']);
+    expect(activities).toHaveLength(1);
+    expect(activities[0]).toMatchObject({ place: 'editing', end: 'explicit', valid: true });
+    expect(activities[0].endMs - activities[0].startMs).toBe(3 * 3600_000);
+  });
+
+  it('closes a crashed session as a tightly-bounded unknown on restart', () => {
+    const { activities } = deriveSessions(
+      parseEvents([ev(10, 'editing_start'), ev(20, 'editing_start'), ev(22, 'editing_stop')]),
+      now,
+    );
+    expect(activities.map((a) => [a.end, a.valid])).toEqual([
+      ['unknown', false],
+      ['explicit', true],
+    ]);
+    expect(activities[0].endMs).toBe(T0 + 20 * 3600_000); // clipped at the restart
+  });
+
+  it('counts orphan stops without inventing a session', () => {
+    const { activities, activityOrphans } = deriveSessions(
+      parseEvents([ev(5, 'editing_stop')]),
+      now,
+    );
+    expect(activities).toHaveLength(0);
+    expect(activityOrphans).toBe(1);
+  });
+
+  it('marks a fresh open activity as ongoing', () => {
+    const { activities } = deriveSessions(parseEvents([ev(28, 'editing_start')]), now);
+    expect(activities[0].end).toBe('ongoing');
+    expect(activities[0].endMs).toBe(now);
+  });
+
+  it('does not confuse place events with activity events', () => {
+    const parsed = parseEvents([ev(1, 'arrived_work'), ev(2, 'editing_start')]);
+    expect(parsed[0].activity).toBeNull();
+    expect(parsed[1].kind).toBeNull();
+    expect(parsed[1].activity).toBe('editing');
+    expect(parsed[1].phase).toBe('start');
+  });
+
+  it('keeps independent state machines per activity name', () => {
+    const { activities } = deriveSessions(
+      parseEvents([
+        ev(10, 'editing_start'),
+        ev(11, 'driving_start'),
+        ev(12, 'driving_stop'),
+        ev(14, 'editing_stop'),
+      ]),
+      now,
+    );
+    expect(activities.map((a) => [a.place, a.end])).toEqual([
+      ['editing', 'explicit'],
+      ['driving', 'explicit'],
+    ]);
+  });
+
+  it('feeds weeklyHours like any session pool', () => {
+    const { activities } = deriveSessions(
+      parseEvents([ev(20, 'editing_start'), ev(23, 'editing_stop')]),
+      now,
+    );
+    const weeks = weeklyHours(activities, now, 1);
+    expect(weeks[0].hoursByPlace['editing']).toBeCloseTo(3);
+  });
+});
+
 describe('fmtDuration', () => {
   it('formats sub-hour and multi-hour spans', () => {
     expect(fmtDuration(45)).toBe('45m');

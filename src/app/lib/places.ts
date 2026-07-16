@@ -11,6 +11,8 @@ const KNOWN: Record<string, PlaceMeta> = {
   gym: { label: 'Gym', color: 'var(--ink-gym)', phrase: 'at the gym' },
   home: { label: 'Home', color: 'var(--ink-home)', phrase: 'at home' },
   shop: { label: 'Shop', color: 'var(--ink-shop)', phrase: 'in the shop' },
+  // Activities (from <name>_start/stop producers), not places.
+  editing: { label: 'Editing', color: 'var(--ink-edit)', phrase: 'at the cutting bench' },
 };
 
 const SPARE = ['var(--ink-spare-1)', 'var(--ink-spare-2)', 'var(--ink-spare-3)'];

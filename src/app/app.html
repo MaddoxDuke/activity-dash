@@ -1,46 +1,6 @@
 @if (store.state() === 'ready') {
   <div class="page">
-    <app-masthead />
-
-    @if (store.demo) {
-      <p class="specimen-note">
-        these are specimen pages, drawn from an invented ten weeks —
-        <a href="/">present a key to open the real almanac</a>
-      </p>
-    }
-    @if (store.fetchError()) {
-      <p class="specimen-note">{{ store.fetchError() }}</p>
-    }
-
-    <main>
-      <app-day-explorer />
-      <app-week-rhythm />
-      <app-gym-sessions />
-      <app-balance />
-      <app-passages />
-      <app-ledger />
-    </main>
-
-    <footer class="colophon">
-      <p>
-        @if (observedSince(); as since) {
-          under observation since {{ since }} ·
-        }
-        {{ store.totalEvents() }} events
-        @if (store.derived().orphans > 0) {
-          · {{ store.derived().orphans }} orphaned departure{{
-            store.derived().orphans === 1 ? '' : 's'
-          }}
-        }
-        · fed by <span class="colophon__mono">api.maddox-duke.com</span>
-      </p>
-      <p class="colophon__keys">
-        <kbd>←</kbd><kbd>→</kbd> travel between days · <kbd>t</kbd> return to today
-        @if (!store.demo) {
-          · <button class="colophon__lock" (click)="store.lock()">close the almanac</button>
-        }
-      </p>
-    </footer>
+    <router-outlet />
   </div>
 } @else {
   <app-gate />

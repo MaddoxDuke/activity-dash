@@ -73,6 +73,17 @@ export function demoEvents(nowMs: number): ActivityEvent[] {
         if (!dropped()) push(e + 10 * 60_000 + jitter(4), 'arrived_home');
       }
     }
+
+    // Editing sessions at the desk (RoughCut beacon) — an activity, layered
+    // over wherever he is. Weekday late evenings ~40%; weekends ~55% with a
+    // longer afternoon block. Occasionally the stop goes missing (a crash).
+    const editingTonight = wd <= 4 ? rand() < 0.4 : rand() < 0.55;
+    if (editingTonight) {
+      const s = wd <= 4 ? at(20, 40) : at(16, 30);
+      const e = s + (55 + rand() * (wd <= 4 ? 110 : 170)) * 60_000;
+      if (!dropped()) push(s, 'editing_start');
+      if (!dropped(0.06)) push(e, 'editing_stop');
+    }
   }
 
   out.sort((a, b) => a.tsMs - b.tsMs);
@@ -80,7 +91,7 @@ export function demoEvents(nowMs: number): ActivityEvent[] {
     id: i + 1,
     ts: new Date(e.tsMs).toISOString(),
     event: e.event,
-    source: e.source,
+    source: e.event.startsWith('editing_') ? 'roughcut' : e.source,
     received_at: new Date(e.tsMs + 1500).toISOString(),
   }));
 }

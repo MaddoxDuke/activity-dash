@@ -14,11 +14,13 @@ export const MAX_SESSION_MS = 16 * 3600_000;
 export const MAX_TRANSIT_MS = 3 * 3600_000;
 
 const PLACE_RE = /^(arrived|left)_([a-z0-9_]+)$/;
+const ACTIVITY_RE = /^([a-z0-9_]+)_(start|stop)$/;
 
 export function parseEvents(raw: ActivityEvent[]): ParsedEvent[] {
   return raw
     .map((e) => {
       const m = PLACE_RE.exec(e.event);
+      const a = m ? null : ACTIVITY_RE.exec(e.event);
       return {
         id: e.id,
         tsMs: Date.parse(e.ts),
@@ -26,6 +28,8 @@ export function parseEvents(raw: ActivityEvent[]): ParsedEvent[] {
         source: e.source ?? 'unknown',
         kind: (m ? m[1] : null) as ParsedEvent['kind'],
         place: m ? m[2] : null,
+        activity: a ? a[1] : null,
+        phase: (a ? a[2] : null) as ParsedEvent['phase'],
       };
     })
     .filter((e) => Number.isFinite(e.tsMs))
@@ -85,7 +89,71 @@ export function deriveSessions(events: ParsedEvent[], nowMs: number): DerivedDat
     else close(o.startMs + MAX_SESSION_MS, 'unknown');
   }
 
-  return { events, sessions, transitions: deriveTransitions(events), orphans };
+  const { activities, activityOrphans } = deriveActivitySessions(events, nowMs);
+  return {
+    events,
+    sessions,
+    transitions: deriveTransitions(events),
+    orphans,
+    activities,
+    activityOrphans,
+  };
+}
+
+/**
+ * Pair <name>_start / <name>_stop into activity sessions (place = name).
+ *
+ * Unlike places, activities are not mutually exclusive — each name gets its
+ * own state machine, and none of them interacts with place stays. Rules:
+ *  - a second start for an open name means its stop was missed (a crash, a
+ *    kill -9): the open session closes 'unknown' at the new start — a gap,
+ *    tightly bounded, never counted as hours.
+ *  - stop with no open start is an orphan; counted, otherwise ignored.
+ *  - end-of-log opens age out exactly like place stays: 'ongoing' within
+ *    MAX_SESSION_MS, 'unknown' beyond it.
+ */
+export function deriveActivitySessions(
+  events: ParsedEvent[],
+  nowMs: number,
+): { activities: Session[]; activityOrphans: number } {
+  const activities: Session[] = [];
+  const open = new Map<string, { startMs: number; source: string }>();
+  let activityOrphans = 0;
+
+  const close = (name: string, endMs: number, end: Session['end']) => {
+    const o = open.get(name);
+    if (!o) return;
+    const dur = endMs - o.startMs;
+    activities.push({
+      place: name,
+      startMs: o.startMs,
+      endMs,
+      end,
+      valid: end !== 'unknown' && dur > 0 && dur <= MAX_SESSION_MS,
+      sourceStart: o.source,
+    });
+    open.delete(name);
+  };
+
+  for (const ev of events) {
+    if (!ev.activity || !ev.phase) continue;
+    if (ev.phase === 'start') {
+      if (open.has(ev.activity)) close(ev.activity, ev.tsMs, 'unknown');
+      open.set(ev.activity, { startMs: ev.tsMs, source: ev.source });
+    } else {
+      if (open.has(ev.activity)) close(ev.activity, ev.tsMs, 'explicit');
+      else activityOrphans++;
+    }
+  }
+
+  for (const name of [...open.keys()]) {
+    const o = open.get(name)!;
+    if (nowMs - o.startMs <= MAX_SESSION_MS) close(name, nowMs, 'ongoing');
+    else close(name, o.startMs + MAX_SESSION_MS, 'unknown');
+  }
+
+  activities.sort((a, b) => a.startMs - b.startMs);
+  return { activities, activityOrphans };
 }
 
 /** Journeys: each explicit left_X followed by an arrived_Y within the window. */

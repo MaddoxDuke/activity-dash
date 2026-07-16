@@ -7,7 +7,7 @@ export interface ActivityEvent {
   received_at: string;
 }
 
-/** Parsed, sorted event with epoch ms and place semantics extracted. */
+/** Parsed, sorted event with epoch ms and place/activity semantics extracted. */
 export interface ParsedEvent {
   id: number;
   tsMs: number;
@@ -16,6 +16,9 @@ export interface ParsedEvent {
   /** 'arrived' | 'left' when the event matches (arrived|left)_<place>. */
   kind: 'arrived' | 'left' | null;
   place: string | null;
+  /** Activity name when the event matches <name>_(start|stop), e.g. 'editing'. */
+  activity: string | null;
+  phase: 'start' | 'stop' | null;
 }
 
 export type SessionEnd = 'explicit' | 'inferred' | 'ongoing' | 'unknown';
@@ -65,4 +68,12 @@ export interface DerivedData {
   transitions: Transition[];
   /** Count of left_X events with no matching open stay. */
   orphans: number;
+  /**
+   * Sessions derived from <name>_start/<name>_stop pairs (place = the
+   * activity name). A separate pool from place stays: activities happen
+   * while somewhere, so the two must overlap rather than close each other.
+   */
+  activities: Session[];
+  /** Count of <name>_stop events with no matching open activity. */
+  activityOrphans: number;
 }

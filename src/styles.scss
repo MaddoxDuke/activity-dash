@@ -19,6 +19,7 @@
   --ink-gym: #c96f45;
   --ink-home: #9c9a72;
   --ink-shop: #c8a04b;
+  --ink-edit: #74a68c;
   --ink-spare-1: #a08bb0;
   --ink-spare-2: #7fa895;
   --ink-spare-3: #b98a8a;
@@ -1027,6 +1028,298 @@ button {
   transform: none;
 }
 
+/* ——— folio nav (page-to-page) ————————————————————————————— */
+
+.folio-nav {
+  display: inline-flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.folio-nav__link {
+  text-decoration: none;
+  color: var(--ink-faint);
+  letter-spacing: 0.14em;
+
+  &:hover {
+    color: var(--ink-dim);
+  }
+}
+
+.folio-nav__link--here {
+  color: var(--brass);
+  border-bottom: 1px solid var(--brass);
+  padding-bottom: 1px;
+}
+
+.folio-nav__sep {
+  color: var(--ink-faint);
+}
+
+/* ——— shared folio furniture ——————————————————————————————— */
+
+.folio__aside {
+  margin: 18px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14.5px;
+  color: var(--ink-dim);
+}
+
+.masthead__stat-text {
+  margin: 6px 0 0;
+  font-size: 27px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ——— the cutting room: tonight at the bench ——————————————— */
+
+.bench {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.bench__timecode {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 18px 30px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: var(--paper-2);
+  box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--rule);
+}
+
+.bench__digits {
+  font-size: clamp(38px, 8vw, 72px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-edit);
+}
+
+.bench__timecode--settled .bench__digits {
+  color: var(--ink-dim);
+}
+
+.bench__frames {
+  font-size: 15px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.bench__line {
+  margin: 20px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+
+  strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+}
+
+.bench__mono {
+  color: var(--ink-edit);
+}
+
+.bench--empty {
+  padding: 26px 0 6px;
+}
+
+.bench__empty-mark {
+  margin: 0;
+  font-size: 44px;
+  color: var(--ink-faint);
+}
+
+/* ——— the shelf of reels ——————————————————————————————————— */
+
+.reels {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+}
+
+.reels__row {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  grid-template-areas: 'date strip' 'date len';
+  align-items: center;
+  column-gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.reels__date {
+  grid-area: date;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+}
+
+.reels__strip {
+  grid-area: strip;
+  justify-self: start;
+  width: 0;
+  height: 14px;
+  min-width: 14px;
+  background: var(--ink-edit);
+  /* sprocket holes punched along both edges */
+  background-image:
+    radial-gradient(circle at 5px 3px, var(--paper) 1.6px, transparent 1.8px),
+    radial-gradient(circle at 5px 11px, var(--paper) 1.6px, transparent 1.8px);
+  background-size: 10px 14px;
+  background-repeat: repeat-x;
+  transition: width 0.5s ease-out;
+}
+
+.reels__row--broken .reels__strip {
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    -55deg,
+    var(--ink-faint) 0 2px,
+    transparent 2px 6px
+  );
+  border-right: 2px solid var(--ink-faint);
+}
+
+.reels__strip--ongoing {
+  animation: pip-breathe 3.2s ease-in-out infinite;
+}
+
+.reels__len {
+  grid-area: len;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.reels__row--broken .reels__len {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.reels__span {
+  color: var(--ink-faint);
+  margin-left: 8px;
+}
+
+/* ——— the trade ————————————————————————————————————————————— */
+
+.trade {
+  margin-top: 36px;
+}
+
+.trade__legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 14px;
+}
+
+.trade__tick-right {
+  margin-right: 0;
+  margin-left: 7px;
+}
+
+.trade__week {
+  display: grid;
+  grid-template-columns: 52px 1fr 84px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.trade__label {
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  border-left: 1px solid var(--rule-strong);
+  border-right: 1px solid var(--rule-strong);
+  padding: 3px 0;
+}
+
+.trade__bar {
+  position: relative;
+  height: 12px;
+
+  i {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: block;
+    transition: width 0.5s ease-out;
+  }
+}
+
+.trade__bar--shop i {
+  right: 0;
+  background: var(--ink-shop);
+  opacity: 0.85;
+}
+
+.trade__bar--edit i {
+  left: 0;
+  background: var(--ink-edit);
+}
+
+.trade__hours {
+  font-size: 11px;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.trade__hours--shop {
+  text-align: right;
+}
+
+/* ——— night rhythm: the strip of frames ———————————————————— */
+
+.frames {
+  margin-top: 38px;
+}
+
+.frames__strip {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 3px;
+  padding: 10px 6px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  /* sprocket holes above and below the frame row */
+  background-image:
+    radial-gradient(circle at 7px 5px, var(--rule-strong) 1.5px, transparent 1.7px),
+    radial-gradient(circle at 7px calc(100% - 5px), var(--rule-strong) 1.5px, transparent 1.7px);
+  background-size: 14px 100%;
+  background-repeat: repeat-x;
+}
+
+.frames__frame {
+  position: relative;
+  height: 58px;
+  margin: 8px 0;
+  background: color-mix(in oklab, var(--ink-edit) calc(var(--level) * 88%), var(--paper-2));
+  border: 1px solid var(--rule);
+}
+
+.frames__hour {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 19px;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
 /* ——— smaller pages ——————————————————————————————————————— */
 
 @media (max-width: 760px) {
@@ -1092,6 +1385,34 @@ button {
   .ledger th:nth-child(3) {
     display: none;
   }
+
+  .folio-nav {
+    order: -1;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+
+  .reels__row {
+    grid-template-columns: 76px 1fr;
+  }
+
+  .trade__week {
+    grid-template-columns: 34px 1fr 64px 1fr 34px;
+    gap: 6px;
+  }
+
+  .frames__strip {
+    grid-template-columns: repeat(12, 1fr);
+    row-gap: 26px;
+  }
+
+  .frames__frame {
+    height: 40px;
+  }
+
+  .bench__digits {
+    font-size: clamp(30px, 11vw, 54px);
+  }
 }
 
 /* ——— stillness for those who ask for it —————————————————— */
@@ -1103,7 +1424,8 @@ button {
 
   .masthead__pip,
   .gate__needle,
-  .band__block--ongoing::after {
+  .band__block--ongoing::after,
+  .reels__strip--ongoing {
     animation: none;
   }
 

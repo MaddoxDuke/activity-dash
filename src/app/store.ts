@@ -86,6 +86,47 @@ export class Store {
     return last && last.end === 'ongoing' ? last : null;
   });
 
+  /* ——— the cutting room: editing activity from the RoughCut beacon ——— */
+
+  readonly activities = computed(() => this.derived().activities);
+
+  /** Finished, plausible reels — newest last. */
+  readonly editingSessions = computed(() =>
+    this.activities().filter((a) => a.place === 'editing' && a.valid && a.end !== 'ongoing'),
+  );
+
+  /** The reel turning right now, if any. */
+  readonly editingOngoing = computed<Session | null>(() => {
+    const open = this.activities().find((a) => a.place === 'editing' && a.end === 'ongoing');
+    return open ?? null;
+  });
+
+  /** Sessions whose end was never announced — crashes, kills, gaps. */
+  readonly editingBrokenReels = computed(
+    () => this.activities().filter((a) => a.place === 'editing' && a.end === 'unknown').length,
+  );
+
+  readonly editingHours = computed(() =>
+    this.editingSessions().reduce((h, s) => h + (s.endMs - s.startMs) / 3600_000, 0),
+  );
+
+  /** Raw editing events for the cutting-room ledger tail. */
+  readonly editingEvents = computed(() =>
+    this.derived().events.filter((e) => e.activity === 'editing'),
+  );
+
+  /** Shop hours vs editing hours, per week — the trade the almanac asks about. */
+  readonly tradeWeeks = computed(() => {
+    const shop = weeklyHours(this.sessions(), this.nowMs(), 8);
+    const edit = weeklyHours(this.activities(), this.nowMs(), 8);
+    return shop.map((w, i) => ({
+      mondayMs: w.mondayMs,
+      label: w.label,
+      shop: w.hoursByPlace['shop'] ?? 0,
+      editing: edit[i].hoursByPlace['editing'] ?? 0,
+    }));
+  });
+
   readonly totalEvents = computed(() => this.derived().events.length);
   readonly observedSinceMs = computed(() => this.derived().events[0]?.tsMs ?? null);
   readonly daysObserved = computed(
