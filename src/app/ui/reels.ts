@@ -20,7 +20,7 @@ interface ReelRow {
 
 /**
  * Folio II — the shelf of reels. Every editing session as a strip of film:
- * length is bench time, sprocket holes run along the edge, a torn end marks
+ * length is editing time, sprocket holes run along the edge, a torn end marks
  * a session whose stop was never announced.
  */
 @Component({
@@ -70,7 +70,7 @@ interface ReelRow {
           </p>
         }
       } @else {
-        <p class="folio__empty">the shelf is bare — reels appear once the bench starts talking</p>
+        <p class="folio__empty">the shelf is bare — reels appear once editing sessions arrive</p>
       }
     </section>
   `,

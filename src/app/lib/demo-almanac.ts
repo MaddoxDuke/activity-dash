@@ -25,23 +25,23 @@ export function demoAnalystNotes(nowMs: number): AnalystNote[] {
     {
       day: d(1),
       briefing:
-        'The gym-then-bench pairing held again — your two longest reels this week both followed a session under the bar.',
+        'The gym-then-editing pairing held again — your two longest sessions this week both followed a session under the bar.',
       observations: [
         'work ran 7h40 with a clean 17:05 close; no evening spillover',
-        'bench lit at 20:28, within eight minutes of its weekly median',
+        'editing started at 20:28, within eight minutes of its weekly median',
         'protein landed at 172g against a 2,140 kcal day — the ratio is holding',
       ],
       suggestions: [
-        'Wednesday looks like the next gym-then-bench window; guard 20:00–22:30.',
+        'Wednesday looks like the next gym-then-editing window; guard 20:00–22:30.',
         'the shop has taken no weekday evenings yet this week — if the exhaust job needs one, Thursday costs the least.',
       ],
       received_at: new Date(nowMs - 86_400_000).toISOString(),
     },
     {
       day: d(2),
-      briefing: 'A shop-heavy day that ended flat — no bench, no bar, and the latest work close of the week.',
+      briefing: 'A shop-heavy day that ended flat — no editing, no gym, and the latest work close of the week.',
       observations: ['work closed at 18:12, an hour past its median', 'shop took 2h10 of the evening'],
-      suggestions: ['if the shop runs past 20:00 again, book the bench for the following night rather than forcing both.'],
+      suggestions: ['if the shop runs past 20:00 again, book editing for the following night rather than forcing both.'],
       received_at: new Date(nowMs - 2 * 86_400_000).toISOString(),
     },
   ];

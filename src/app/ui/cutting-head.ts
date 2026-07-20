@@ -20,7 +20,7 @@ import { Odo } from './odo';
             a reel is turning — since {{ clockOf(reel.startMs) }}
           } @else {
             <i class="masthead__pip masthead__pip--away"></i>
-            the bench is dark
+            no editing running
           }
         </span>
         <span class="masthead__clock">{{ clock() }}</span>
@@ -28,7 +28,7 @@ import { Odo } from './odo';
 
       <h1 class="masthead__word">The Cutting Room</h1>
       <p class="masthead__sub">
-        reels of bench time at the edit desk — announced by RoughCut, kept without judgement
+        editing sessions at the desk — announced by RoughCut, kept without judgement
       </p>
 
       <dl class="masthead__stats">
@@ -37,7 +37,7 @@ import { Odo } from './odo';
           <dd><odo [value]="store.editingSessions().length" /></dd>
         </div>
         <div class="masthead__stat">
-          <dt>hours at the bench</dt>
+          <dt>hours editing</dt>
           <dd><odo [value]="hoursRounded()" /></dd>
         </div>
         <div class="masthead__stat">

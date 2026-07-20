@@ -14,8 +14,8 @@ interface TradeRow {
 /**
  * Folio III — the trade. The almanac's founding question: how does shop
  * time trade against editing time? Weekly two-sided ledger from a center
- * spine — brass to the left for the shop, viridian to the right for the
- * bench.
+ * spine — brass to the left for the shop, viridian to the right for
+ * editing.
  */
 @Component({
   selector: 'app-trade',
@@ -25,7 +25,7 @@ interface TradeRow {
       <header class="folio__head">
         <span class="folio__numeral">III</span>
         <h2 class="folio__title">The Trade</h2>
-        <span class="folio__note">shop hours against bench hours, week by week</span>
+        <span class="folio__note">shop hours against editing hours, week by week</span>
       </header>
 
       @if (hasAny()) {
@@ -33,7 +33,7 @@ interface TradeRow {
           <div class="trade__legend">
             <span><i class="tickmark" style="--place: var(--ink-shop)"></i>the shop</span>
             <span class="trade__legend-right"
-              >the bench<i class="tickmark trade__tick-right" style="--place: var(--ink-edit)"></i
+              >editing<i class="tickmark trade__tick-right" style="--place: var(--ink-edit)"></i
             ></span>
           </div>
           @for (r of rows(); track r.key) {
@@ -57,7 +57,7 @@ interface TradeRow {
         </div>
       } @else {
         <p class="folio__empty">
-          neither shop nor bench has hours on the books yet — the trade opens with the first week
+          neither shop nor editing has hours on the books yet — the trade opens with the first week
           of data
         </p>
       }
@@ -88,13 +88,13 @@ export class Trade {
     const last4 = this.store.tradeWeeks().slice(-4);
     const shop = last4.reduce((h, w) => h + w.shop, 0);
     const edit = last4.reduce((h, w) => h + w.editing, 0);
-    if (shop === 0 && edit === 0) return 'a quiet month on both benches.';
+    if (shop === 0 && edit === 0) return 'a quiet month in both columns.';
     const s = Math.round(shop);
     const e = Math.round(edit);
     if (Math.abs(shop - edit) < 1) return `an even month — ${s}h against ${e}h.`;
     return shop > edit
       ? `the shop is winning the month, ${s}h to ${e}h.`
-      : `the bench is winning the month, ${e}h to ${s}h.`;
+      : `editing is winning the month, ${e}h to ${s}h.`;
   });
 
   protected fmt(h: number): string {
@@ -102,6 +102,6 @@ export class Trade {
   }
 
   protected title(r: TradeRow): string {
-    return `week of ${r.label} — shop ${this.fmt(r.shop)}, bench ${this.fmt(r.editing)}`;
+    return `week of ${r.label} — shop ${this.fmt(r.shop)}, editing ${this.fmt(r.editing)}`;
   }
 }

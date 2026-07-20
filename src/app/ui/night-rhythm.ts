@@ -11,8 +11,8 @@ interface FrameCell {
 }
 
 /**
- * Folio IV — when the bench gets used. A strip of 24 film frames, one per
- * hour of the day; the deeper the ink, the more bench-minutes that hour has
+ * Folio IV — when editing happens. A strip of 24 film frames, one per
+ * hour of the day; the deeper the ink, the more editing minutes that hour has
  * collected across every reel on record.
  */
 @Component({
@@ -23,7 +23,7 @@ interface FrameCell {
       <header class="folio__head">
         <span class="folio__numeral">IV</span>
         <h2 class="folio__title">Night Rhythm</h2>
-        <span class="folio__note">bench minutes by hour of day, all reels compounded</span>
+        <span class="folio__note">editing minutes by hour of day, all sessions compounded</span>
       </header>
 
       @if (total() > 0) {

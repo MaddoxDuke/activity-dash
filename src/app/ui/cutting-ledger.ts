@@ -5,7 +5,7 @@ import { Reveal } from './reveal';
 
 const SHOWN = 12;
 
-/** Folio V — the bench's own ledger: only what RoughCut announced. */
+/** Folio V — the editing ledger: only what RoughCut announced. */
 @Component({
   selector: 'app-cutting-ledger',
   imports: [Reveal],
@@ -13,7 +13,7 @@ const SHOWN = 12;
     <section class="folio" reveal>
       <header class="folio__head">
         <span class="folio__numeral">V</span>
-        <h2 class="folio__title">The Bench Ledger</h2>
+        <h2 class="folio__title">The Editing Ledger</h2>
         <span class="folio__note">what the beacon said, newest first</span>
       </header>
 

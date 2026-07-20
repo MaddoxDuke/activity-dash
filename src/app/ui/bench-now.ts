@@ -4,7 +4,7 @@ import { Store } from '../store';
 import { Reveal } from './reveal';
 
 /**
- * Folio I — the bench tonight. When a reel is turning, a live timecode
+ * Folio I — editing tonight. When a reel is turning, a live timecode
  * counts the session up by the second, machined like a deck counter.
  * Otherwise: how the last reel ended.
  */
@@ -15,7 +15,7 @@ import { Reveal } from './reveal';
     <section class="folio" reveal>
       <header class="folio__head">
         <span class="folio__numeral">I</span>
-        <h2 class="folio__title">Tonight at the Bench</h2>
+        <h2 class="folio__title">Editing Tonight</h2>
         <span class="folio__note">
           @if (store.editingOngoing()) {
             the reel is turning now
@@ -33,7 +33,7 @@ import { Reveal } from './reveal';
           </div>
           <p class="bench__line">
             rolling since <strong>{{ clockOf(reel.startMs) }}</strong> — RoughCut will announce
-            the cut when the bench goes dark
+            the cut when the session ends
           </p>
         </div>
       } @else if (lastReel(); as last) {
@@ -42,7 +42,7 @@ import { Reveal } from './reveal';
             <span class="bench__digits">{{ lastDuration() }}</span>
           </div>
           <p class="bench__line">
-            the bench went dark at <strong>{{ clockOf(last.endMs) }}</strong> on
+            editing ended at <strong>{{ clockOf(last.endMs) }}</strong> on
             {{ dayOf(last.endMs) }} — a {{ lastDurationSpoken() }} reel
           </p>
         </div>
@@ -51,8 +51,8 @@ import { Reveal } from './reveal';
           <p class="bench__empty-mark" aria-hidden="true">✂</p>
           <p class="bench__line">
             no reels yet. when RoughCut opens on the editing machine it announces itself here —
-            <span class="bench__mono">editing_start</span> when the bench lights,
-            <span class="bench__mono">editing_stop</span> when it goes dark.
+            <span class="bench__mono">editing_start</span> when a session begins,
+            <span class="bench__mono">editing_stop</span> when it ends.
           </p>
         </div>
       }
