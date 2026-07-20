@@ -1667,6 +1667,91 @@ th.showings__num {
   color: var(--ink-dim);
 }
 
+/* ——— the call sheet ————————————————————————————————————————— */
+
+.callsheet {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-top: 34px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.callsheet__day {
+  background: var(--paper);
+  padding: 12px 12px 16px;
+  min-height: 150px;
+}
+
+.callsheet__day--today {
+  background: var(--paper-2);
+  box-shadow: inset 0 2px 0 var(--brass);
+}
+
+.callsheet__name {
+  margin: 0 0 12px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.callsheet__today-pip {
+  width: 6px;
+  height: 6px;
+  background: var(--brass);
+  animation: pip-breathe 3.2s ease-in-out infinite;
+}
+
+.callsheet__block {
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.callsheet__block--free {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.callsheet__label {
+  color: var(--ink);
+}
+
+.callsheet__block--free .callsheet__label {
+  color: var(--ink-faint);
+}
+
+.callsheet__time {
+  display: block;
+  color: var(--ink-dim);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.callsheet__note {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.callsheet__cadence {
+  margin: 18px 0 0;
+  padding: 9px 14px;
+  border: 1px dashed var(--rule-strong);
+  text-align: center;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--brass);
+}
+
 /* ——— smaller pages ——————————————————————————————————————— */
 
 @media (max-width: 760px) {
@@ -1759,6 +1844,14 @@ th.showings__num {
 
   .bench__digits {
     font-size: clamp(30px, 11vw, 54px);
+  }
+
+  .callsheet {
+    grid-template-columns: 1fr;
+  }
+
+  .callsheet__day {
+    min-height: 0;
   }
 
   .showings th:nth-child(5),

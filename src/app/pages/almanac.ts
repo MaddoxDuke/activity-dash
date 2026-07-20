@@ -2,6 +2,7 @@ import { Component, HostListener, computed, inject } from '@angular/core';
 import { Store } from '../store';
 import { AnalystNoteFolio } from '../ui/analyst-note';
 import { Balance } from '../ui/balance';
+import { CallSheet } from '../ui/call-sheet';
 import { DayExplorer } from '../ui/day-explorer';
 import { FieldPen } from '../ui/field-pen';
 import { GymSessions } from '../ui/gym-sessions';
@@ -24,6 +25,7 @@ import { WeekRhythm } from '../ui/week-rhythm';
     AnalystNoteFolio,
     Vitals,
     FieldPen,
+    CallSheet,
   ],
   template: `
     <app-masthead />
@@ -48,6 +50,7 @@ import { WeekRhythm } from '../ui/week-rhythm';
       <app-analyst-note />
       <app-vitals />
       <app-field-pen />
+      <app-call-sheet />
     </main>
 
     <footer class="colophon">
