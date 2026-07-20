@@ -32,6 +32,9 @@ const CLOCK_MS = 30_000;
 
 export type GateState = 'locked' | 'checking' | 'ready';
 
+/** Postgres DATE → 'YYYY-MM-DD', tolerant of plain date strings. */
+const day10 = (d: unknown): string => String(d).slice(0, 10);
+
 /** localStorage that degrades to session-only when storage is blocked. */
 const storage = {
   get(): string | null {
@@ -217,10 +220,20 @@ export class Store {
         fetch(`${TUBE_BASE}/stars`, opts),
       ]);
       if (!ch.ok || !vids.ok || !scout.ok || !stars.ok) throw new Error('box office not open');
-      this.channel.set((await ch.json()) as ChannelData);
+      // Postgres DATE columns arrive as full ISO timestamps; the almanac
+      // speaks in YYYY-MM-DD everywhere (labels, star keys, POST bodies).
+      const chData = (await ch.json()) as ChannelData;
+      this.channel.set({
+        latest: chData.latest ? { ...chData.latest, day: day10(chData.latest.day) } : null,
+        series: chData.series.map((d) => ({ ...d, day: day10(d.day) })),
+      });
       this.showings.set((await vids.json()) as ShowingVideo[]);
-      this.scoutNotes.set((await scout.json()) as ScoutNote[]);
-      this.stars.set((await stars.json()) as StarredIdea[]);
+      this.scoutNotes.set(
+        ((await scout.json()) as ScoutNote[]).map((n) => ({ ...n, day: day10(n.day) })),
+      );
+      this.stars.set(
+        ((await stars.json()) as StarredIdea[]).map((s) => ({ ...s, day: day10(s.day) })),
+      );
       this.boxOffice.set('ready');
     } catch {
       this.boxOffice.set('unlit'); // service not lit yet — never break the almanac
@@ -235,8 +248,16 @@ export class Store {
         fetch(`${API_BASE}/analyst?limit=14`, opts),
         fetch(`${API_BASE}/metrics`, opts),
       ]);
-      if (notes.ok) this.analystNotes.set((await notes.json()) as AnalystNote[]);
-      if (mets.ok) this.metricRows.set((await mets.json()) as MetricRow[]);
+      if (notes.ok) {
+        this.analystNotes.set(
+          ((await notes.json()) as AnalystNote[]).map((n) => ({ ...n, day: day10(n.day) })),
+        );
+      }
+      if (mets.ok) {
+        this.metricRows.set(
+          ((await mets.json()) as MetricRow[]).map((m) => ({ ...m, day: day10(m.day) })),
+        );
+      }
     } catch {
       /* older API without these routes — the folios simply stay closed */
     }
