@@ -1,16 +1,30 @@
 import { Component, HostListener, computed, inject } from '@angular/core';
 import { Store } from '../store';
+import { AnalystNoteFolio } from '../ui/analyst-note';
 import { Balance } from '../ui/balance';
 import { DayExplorer } from '../ui/day-explorer';
+import { FieldPen } from '../ui/field-pen';
 import { GymSessions } from '../ui/gym-sessions';
 import { Ledger } from '../ui/ledger';
 import { Masthead } from '../ui/masthead';
 import { Passages } from '../ui/passages';
+import { Vitals } from '../ui/vitals';
 import { WeekRhythm } from '../ui/week-rhythm';
 
 @Component({
   selector: 'app-almanac-page',
-  imports: [Masthead, DayExplorer, WeekRhythm, GymSessions, Balance, Passages, Ledger],
+  imports: [
+    Masthead,
+    DayExplorer,
+    WeekRhythm,
+    GymSessions,
+    Balance,
+    Passages,
+    Ledger,
+    AnalystNoteFolio,
+    Vitals,
+    FieldPen,
+  ],
   template: `
     <app-masthead />
 
@@ -31,6 +45,9 @@ import { WeekRhythm } from '../ui/week-rhythm';
       <app-balance />
       <app-passages />
       <app-ledger />
+      <app-analyst-note />
+      <app-vitals />
+      <app-field-pen />
     </main>
 
     <footer class="colophon">

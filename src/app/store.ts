@@ -10,7 +10,16 @@ import {
   slicesForDay,
   weeklyHours,
 } from './lib/derive';
-import { ChannelData, ScoutIdea, ScoutNote, ShowingVideo, StarredIdea } from './lib/channel-types';
+import {
+  AnalystNote,
+  ChannelData,
+  MetricRow,
+  ScoutIdea,
+  ScoutNote,
+  ShowingVideo,
+  StarredIdea,
+} from './lib/channel-types';
+import { demoAnalystNotes, demoMetrics } from './lib/demo-almanac';
 import { demoChannel, demoScoutNotes, demoVideos } from './lib/demo-channel';
 import { demoEvents } from './lib/demo';
 import { ActivityEvent, Session } from './lib/types';
@@ -153,6 +162,18 @@ export class Store {
   readonly starKeys = computed(() => new Set(this.stars().map((s) => `${s.day}::${s.title}`)));
   private demoStarSeq = -1;
 
+  /* ——— the analyst, vitals, and the field pen ————————————————— */
+
+  readonly analystNotes = signal<AnalystNote[]>([]);
+  readonly metricRows = signal<MetricRow[]>([]);
+  readonly penError = signal('');
+  /** The open focus session, if the pen has one running. */
+  readonly focusOpen = computed<Session | null>(() => {
+    const open = this.activities().find((a) => a.place === 'focus' && a.end === 'ongoing');
+    return open ?? null;
+  });
+  private penSeq = -1;
+
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
@@ -164,6 +185,8 @@ export class Store {
       this.showings.set(demoVideos(Date.now()));
       const notes = demoScoutNotes(Date.now());
       this.scoutNotes.set(notes);
+      this.analystNotes.set(demoAnalystNotes(Date.now()));
+      this.metricRows.set(demoMetrics(Date.now()));
       // two specimens already on the slate, so the folio arrives inked
       this.stars.set(
         notes.slice(0, 2).map((n, i) => ({
@@ -201,6 +224,63 @@ export class Store {
       this.boxOffice.set('ready');
     } catch {
       this.boxOffice.set('unlit'); // service not lit yet — never break the almanac
+    }
+  }
+
+  /** Analyst notes + vitals ride on the activity API with the same key. */
+  private async loadAlmanacExtras(key: string): Promise<void> {
+    try {
+      const opts = { headers: { 'x-api-key': key } };
+      const [notes, mets] = await Promise.all([
+        fetch(`${API_BASE}/analyst?limit=14`, opts),
+        fetch(`${API_BASE}/metrics`, opts),
+      ]);
+      if (notes.ok) this.analystNotes.set((await notes.json()) as AnalystNote[]);
+      if (mets.ok) this.metricRows.set((await mets.json()) as MetricRow[]);
+    } catch {
+      /* older API without these routes — the folios simply stay closed */
+    }
+  }
+
+  /**
+   * The field pen: write an event from the site itself. Optimistic — the
+   * entry appears immediately; live mode also posts it to the API.
+   */
+  async penEvent(event: string): Promise<boolean> {
+    this.penError.set('');
+    if (!/^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/.test(event)) {
+      this.penError.set('events are snake_case: lowercase words joined by single underscores');
+      return false;
+    }
+    const optimistic: ActivityEvent = {
+      id: this.penSeq--,
+      ts: new Date().toISOString(),
+      event,
+      source: 'field_pen',
+      received_at: new Date().toISOString(),
+    };
+    if (this.demo) {
+      this.rawEvents.set([...this.rawEvents(), optimistic]);
+      return true;
+    }
+    const key = storage.get();
+    if (!key) return false;
+    try {
+      const res = await fetch(`${API_BASE}/events`, {
+        method: 'POST',
+        headers: { 'x-api-key': key, 'content-type': 'application/json' },
+        body: JSON.stringify({ ts: optimistic.ts, event, source: 'field_pen' }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => null)) as { error?: string } | null;
+        this.penError.set(err?.error ?? `the api refused it (${res.status})`);
+        return false;
+      }
+      this.rawEvents.set([...this.rawEvents(), optimistic]);
+      return true;
+    } catch {
+      this.penError.set('could not reach the api — nothing was written');
+      return false;
     }
   }
 
@@ -265,6 +345,7 @@ export class Store {
       this.state.set('ready');
       this.startRefresh(key);
       void this.loadBoxOffice(key);
+      void this.loadAlmanacExtras(key);
     } catch (e) {
       this.state.set('locked');
       this.gateError.set(e instanceof TypeError ? 'Could not reach the API.' : String(e));

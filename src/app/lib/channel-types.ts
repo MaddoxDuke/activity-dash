@@ -49,3 +49,21 @@ export interface StarredIdea {
   angle: string | null;
   starred_at: string;
 }
+
+/** A daily-grain personal metric from activity-api (/metrics). */
+export interface MetricRow {
+  day: string;
+  name: string;
+  value: number | string;
+  unit: string | null;
+  source: string;
+}
+
+/** The analyst's nightly note from activity-api (/analyst). */
+export interface AnalystNote {
+  day: string;
+  briefing: string;
+  observations: string[];
+  suggestions: string[];
+  received_at: string;
+}
