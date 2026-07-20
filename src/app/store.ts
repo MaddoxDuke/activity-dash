@@ -10,10 +10,13 @@ import {
   slicesForDay,
   weeklyHours,
 } from './lib/derive';
+import { ChannelData, ScoutNote, ShowingVideo } from './lib/channel-types';
+import { demoChannel, demoScoutNotes, demoVideos } from './lib/demo-channel';
 import { demoEvents } from './lib/demo';
 import { ActivityEvent, Session } from './lib/types';
 
 const API_BASE = 'https://api.maddox-duke.com';
+const TUBE_BASE = 'https://tube.maddox-duke.com';
 const KEY_STORAGE = 'whereabouts.key';
 const REFRESH_MS = 5 * 60_000;
 const CLOCK_MS = 30_000;
@@ -138,6 +141,14 @@ export class Store {
       .reduce((h, s) => h + (s.endMs - s.startMs) / 3600_000, 0),
   );
 
+  /* ——— the box office: channel-api, a separate door, same key ——— */
+
+  /** 'unlit' = channel-api unreachable/not deployed; the page stays calm. */
+  readonly boxOffice = signal<'unlit' | 'loading' | 'ready'>('unlit');
+  readonly channel = signal<ChannelData>({ latest: null, series: [] });
+  readonly showings = signal<ShowingVideo[]>([]);
+  readonly scoutNotes = signal<ScoutNote[]>([]);
+
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
@@ -145,11 +156,34 @@ export class Store {
 
     if (this.demo) {
       this.rawEvents.set(demoEvents(Date.now()));
+      this.channel.set(demoChannel(Date.now()));
+      this.showings.set(demoVideos(Date.now()));
+      this.scoutNotes.set(demoScoutNotes(Date.now()));
+      this.boxOffice.set('ready');
       this.state.set('ready');
       return;
     }
     const stored = storage.get();
     if (stored) void this.unlock(stored, true);
+  }
+
+  private async loadBoxOffice(key: string): Promise<void> {
+    this.boxOffice.set('loading');
+    try {
+      const opts = { headers: { 'x-api-key': key } };
+      const [ch, vids, scout] = await Promise.all([
+        fetch(`${TUBE_BASE}/channel`, opts),
+        fetch(`${TUBE_BASE}/videos`, opts),
+        fetch(`${TUBE_BASE}/scout?limit=30`, opts),
+      ]);
+      if (!ch.ok || !vids.ok || !scout.ok) throw new Error('box office not open');
+      this.channel.set((await ch.json()) as ChannelData);
+      this.showings.set((await vids.json()) as ShowingVideo[]);
+      this.scoutNotes.set((await scout.json()) as ScoutNote[]);
+      this.boxOffice.set('ready');
+    } catch {
+      this.boxOffice.set('unlit'); // service not lit yet — never break the almanac
+    }
   }
 
   async unlock(key: string, silent = false): Promise<void> {
@@ -169,6 +203,7 @@ export class Store {
       this.rawEvents.set(events);
       this.state.set('ready');
       this.startRefresh(key);
+      void this.loadBoxOffice(key);
     } catch (e) {
       this.state.set('locked');
       this.gateError.set(e instanceof TypeError ? 'Could not reach the API.' : String(e));

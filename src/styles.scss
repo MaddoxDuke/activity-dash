@@ -1320,6 +1320,217 @@ button {
   color: var(--ink-faint);
 }
 
+/* ——— the box office ———————————————————————————————————————— */
+
+.showings__title {
+  font-size: 12.5px;
+  color: var(--ink);
+  padding: 8px 12px 8px 0;
+}
+
+.showings__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+}
+
+th.showings__num {
+  text-align: right;
+}
+
+.showings__velocity {
+  color: var(--brass);
+}
+
+.curve {
+  margin-top: 36px;
+}
+
+.curve__flank {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+
+.curve__delta {
+  color: var(--brass);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.curve__end--now {
+  color: var(--ink-dim);
+}
+
+.curve__svg {
+  display: block;
+  width: 100%;
+  height: 140px;
+}
+
+.curve__area {
+  fill: color-mix(in oklab, var(--brass) 9%, transparent);
+  stroke: none;
+}
+
+.curve__line {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 1.4;
+}
+
+.curve__baseline {
+  border-bottom: 1px solid var(--rule-strong);
+  margin-top: -1px;
+}
+
+.scout {
+  margin-top: 30px;
+}
+
+.scout__dateline {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 18px;
+}
+
+.scout__date {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-dim);
+}
+
+.scout__page {
+  font-size: 17px;
+  color: var(--brass);
+  padding: 0 8px;
+
+  &:disabled {
+    color: var(--rule-strong);
+    cursor: default;
+  }
+}
+
+.scout__briefing {
+  margin: 22px auto 0;
+  max-width: 640px;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.scout__sub {
+  margin: 34px 0 10px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+}
+
+.scout__trends {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 12px;
+  }
+}
+
+.scout__trend-title {
+  color: var(--ink);
+}
+
+.scout__trend-channel {
+  color: var(--ink-dim);
+  margin-left: 6px;
+}
+
+.scout__trend-why {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.scout__ideas {
+  list-style: none;
+  counter-reset: idea;
+  margin: 0;
+  padding: 0;
+}
+
+.scout__idea {
+  counter-increment: idea;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  column-gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+
+  &::before {
+    content: counter(idea, upper-roman);
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--brass);
+    font-size: 15px;
+  }
+}
+
+.scout__idea-title {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.scout__idea-angle {
+  display: block;
+  grid-column: 2;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--ink-dim);
+}
+
+.dark-house {
+  margin: 90px auto 40px;
+  max-width: 560px;
+  text-align: center;
+}
+
+.dark-house__bulbs {
+  margin: 0 0 18px;
+  letter-spacing: 0.6em;
+  color: var(--rule-strong);
+  font-size: 18px;
+}
+
+.dark-house__line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.dark-house__detail {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
 /* ——— smaller pages ——————————————————————————————————————— */
 
 @media (max-width: 760px) {
@@ -1412,6 +1623,13 @@ button {
 
   .bench__digits {
     font-size: clamp(30px, 11vw, 54px);
+  }
+
+  .showings th:nth-child(5),
+  .showings td:nth-child(5),
+  .showings th:nth-child(6),
+  .showings td:nth-child(6) {
+    display: none;
   }
 }
 

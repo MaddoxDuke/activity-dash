@@ -24,6 +24,14 @@ import { Store } from '../store';
         class="folio-nav__link"
         >the cutting room</a
       >
+      <span class="folio-nav__sep" aria-hidden="true">·</span>
+      <a
+        [routerLink]="['/box-office']"
+        [queryParams]="qp"
+        routerLinkActive="folio-nav__link--here"
+        class="folio-nav__link"
+        >the box office</a
+      >
     </nav>
   `,
 })
