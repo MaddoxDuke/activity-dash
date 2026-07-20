@@ -10,7 +10,7 @@ import {
   slicesForDay,
   weeklyHours,
 } from './lib/derive';
-import { ChannelData, ScoutNote, ShowingVideo } from './lib/channel-types';
+import { ChannelData, ScoutIdea, ScoutNote, ShowingVideo, StarredIdea } from './lib/channel-types';
 import { demoChannel, demoScoutNotes, demoVideos } from './lib/demo-channel';
 import { demoEvents } from './lib/demo';
 import { ActivityEvent, Session } from './lib/types';
@@ -148,6 +148,10 @@ export class Store {
   readonly channel = signal<ChannelData>({ latest: null, series: [] });
   readonly showings = signal<ShowingVideo[]>([]);
   readonly scoutNotes = signal<ScoutNote[]>([]);
+  readonly stars = signal<StarredIdea[]>([]);
+  /** Key for "is this idea starred" lookups. */
+  readonly starKeys = computed(() => new Set(this.stars().map((s) => `${s.day}::${s.title}`)));
+  private demoStarSeq = -1;
 
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -158,7 +162,19 @@ export class Store {
       this.rawEvents.set(demoEvents(Date.now()));
       this.channel.set(demoChannel(Date.now()));
       this.showings.set(demoVideos(Date.now()));
-      this.scoutNotes.set(demoScoutNotes(Date.now()));
+      const notes = demoScoutNotes(Date.now());
+      this.scoutNotes.set(notes);
+      // two specimens already on the slate, so the folio arrives inked
+      this.stars.set(
+        notes.slice(0, 2).map((n, i) => ({
+          id: -(i + 100),
+          day: n.day,
+          title: n.ideas[0].title,
+          angle: n.ideas[0].angle ?? null,
+          starred_at: n.received_at,
+        })),
+      );
+      this.demoStarSeq = -200;
       this.boxOffice.set('ready');
       this.state.set('ready');
       return;
@@ -171,18 +187,63 @@ export class Store {
     this.boxOffice.set('loading');
     try {
       const opts = { headers: { 'x-api-key': key } };
-      const [ch, vids, scout] = await Promise.all([
+      const [ch, vids, scout, stars] = await Promise.all([
         fetch(`${TUBE_BASE}/channel`, opts),
         fetch(`${TUBE_BASE}/videos`, opts),
         fetch(`${TUBE_BASE}/scout?limit=30`, opts),
+        fetch(`${TUBE_BASE}/stars`, opts),
       ]);
-      if (!ch.ok || !vids.ok || !scout.ok) throw new Error('box office not open');
+      if (!ch.ok || !vids.ok || !scout.ok || !stars.ok) throw new Error('box office not open');
       this.channel.set((await ch.json()) as ChannelData);
       this.showings.set((await vids.json()) as ShowingVideo[]);
       this.scoutNotes.set((await scout.json()) as ScoutNote[]);
+      this.stars.set((await stars.json()) as StarredIdea[]);
       this.boxOffice.set('ready');
     } catch {
       this.boxOffice.set('unlit'); // service not lit yet — never break the almanac
+    }
+  }
+
+  isStarred(day: string, title: string): boolean {
+    return this.starKeys().has(`${day}::${title}`);
+  }
+
+  /** Toggle an idea on/off the slate; optimistic in demo, API-backed live. */
+  async toggleStar(day: string, idea: ScoutIdea): Promise<void> {
+    const existing = this.stars().find((s) => s.day === day && s.title === idea.title);
+    if (this.demo) {
+      if (existing) this.stars.set(this.stars().filter((s) => s.id !== existing.id));
+      else
+        this.stars.set([
+          { id: this.demoStarSeq--, day, title: idea.title, angle: idea.angle ?? null, starred_at: new Date().toISOString() },
+          ...this.stars(),
+        ]);
+      return;
+    }
+    const key = storage.get();
+    if (!key) return;
+    try {
+      if (existing) {
+        const res = await fetch(`${TUBE_BASE}/stars/${existing.id}`, {
+          method: 'DELETE',
+          headers: { 'x-api-key': key },
+        });
+        if (res.ok || res.status === 404) {
+          this.stars.set(this.stars().filter((s) => s.id !== existing.id));
+        }
+      } else {
+        const res = await fetch(`${TUBE_BASE}/stars`, {
+          method: 'POST',
+          headers: { 'x-api-key': key, 'content-type': 'application/json' },
+          body: JSON.stringify({ day, title: idea.title, angle: idea.angle }),
+        });
+        if (res.ok) {
+          const row = (await res.json()) as StarredIdea;
+          this.stars.set([row, ...this.stars().filter((s) => s.id !== row.id)]);
+        }
+      }
+    } catch {
+      /* connection hiccup — the slate simply doesn't change */
     }
   }
 

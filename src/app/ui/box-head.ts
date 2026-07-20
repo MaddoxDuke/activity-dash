@@ -45,8 +45,8 @@ import { Odo } from './odo';
           <dd><odo [value]="store.showings().length" /></dd>
         </div>
         <div class="masthead__stat">
-          <dt>ideas banked</dt>
-          <dd><odo [value]="ideasBanked()" /></dd>
+          <dt>on the slate</dt>
+          <dd><odo [value]="store.stars().length" /></dd>
         </div>
       </dl>
     </header>
@@ -64,10 +64,6 @@ export class BoxHead {
     if (v >= 10_000) return `${Math.round(v / 1000)}k`;
     return String(v);
   });
-
-  protected readonly ideasBanked = computed(() =>
-    this.store.scoutNotes().reduce((n, note) => n + note.ideas.length, 0),
-  );
 
   protected dateLine(): string {
     return new Date(this.store.nowMs())

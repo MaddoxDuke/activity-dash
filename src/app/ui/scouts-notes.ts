@@ -48,6 +48,13 @@ import { Reveal } from './reveal';
             @for (idea of n.ideas; track $index) {
               <li class="scout__idea">
                 <span class="scout__idea-title">{{ idea.title }}</span>
+                <button
+                  class="scout__star"
+                  [class.scout__star--kept]="store.isStarred(n.day, idea.title)"
+                  [attr.aria-pressed]="store.isStarred(n.day, idea.title)"
+                  [title]="store.isStarred(n.day, idea.title) ? 'take off the slate' : 'keep on the slate'"
+                  (click)="store.toggleStar(n.day, idea)"
+                >{{ store.isStarred(n.day, idea.title) ? '★' : '☆' }}</button>
                 @if (idea.angle) { <span class="scout__idea-angle">{{ idea.angle }}</span> }
               </li>
             }

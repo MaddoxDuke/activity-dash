@@ -4,10 +4,11 @@ import { BoxHead } from '../ui/box-head';
 import { HouseCurve } from '../ui/house-curve';
 import { NowShowing } from '../ui/now-showing';
 import { ScoutsNotes } from '../ui/scouts-notes';
+import { Slate } from '../ui/slate';
 
 @Component({
   selector: 'app-box-office-page',
-  imports: [BoxHead, NowShowing, HouseCurve, ScoutsNotes],
+  imports: [BoxHead, NowShowing, HouseCurve, ScoutsNotes, Slate],
   template: `
     <app-box-head />
 
@@ -23,6 +24,7 @@ import { ScoutsNotes } from '../ui/scouts-notes';
         <app-now-showing />
         <app-house-curve />
         <app-scouts-notes />
+        <app-slate />
       </main>
     } @else if (store.boxOffice() === 'loading') {
       <p class="folio__empty">counting the house…</p>

@@ -40,3 +40,12 @@ export interface ScoutNote {
   ideas: ScoutIdea[];
   received_at: string;
 }
+
+/** An idea kept for later — the slate. */
+export interface StarredIdea {
+  id: number;
+  day: string;
+  title: string;
+  angle: string | null;
+  starred_at: string;
+}
